@@ -1,0 +1,93 @@
+import java.awt.*;
+import javax.swing.*;
+import javax.swing.JLayeredPane;
+
+public abstract class Core
+{
+	private static final DisplayMode modes1[] =
+	{
+		new DisplayMode(800,600,32,0),
+		new DisplayMode(800,600,24,0),
+		new DisplayMode(800,600,16,0),
+		new DisplayMode(640,480,32,0),
+		new DisplayMode(640,480,24,0),
+		new DisplayMode(640,480,16,0)
+	};
+	protected boolean running;
+	protected ScreenManager s;
+
+	//stop method
+	public void stop()
+	{
+		running=false;
+	}
+
+	//run method 
+	public abstract void run();
+	/* public void run()
+	{
+		try	
+		{
+			init();	
+			gameLoop();
+		}catch(Exception ex){ ex.printStackTrace(); }
+		finally
+		{
+			s.restoreScreen();
+		}
+	} */
+
+	//init method(set to fullscreen)
+	//public abstract void init();
+	public void init()
+	{
+		s=new ScreenManager();
+		DisplayMode dm=s.findFirstCompatibleMode(modes1);
+		s.setFullScreen(dm);
+
+		Window w=s.getFullScreenWindow();
+		w.setFont(new Font("Arial", Font.PLAIN, 20));
+		w.setBackground(Color.GREEN);
+		w.setForeground(Color.WHITE);
+		running=true;
+		//running=false;
+	} 
+
+	//main gameloop
+	//public abstract void gameLoop();
+	public void gameLoop()
+	{
+		//running=true;
+		 long startTime=System.currentTimeMillis();
+		long cumTime=startTime;
+		long timeForGameManager=0;
+		while(running)
+		{
+			long timePassed=System.currentTimeMillis()-cumTime;
+			cumTime+=timePassed;
+			timeForGameManager+=timePassed;
+			if(timeForGameManager>2000)
+			{
+				GameManager.start=false;
+			}
+			update(timePassed);
+
+			Graphics2D g=s.getGraphics();
+			draw(g);
+			g.dispose();
+			s.update();
+
+			try
+			{
+				Thread.sleep(20);
+			}catch(Exception ex){}
+
+		} 
+	} 
+
+	//update animation
+	public void update(long timePassed){}
+
+	//draws to screen
+	public abstract void draw(Graphics2D g);
+}
